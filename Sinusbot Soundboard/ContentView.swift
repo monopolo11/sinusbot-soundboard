@@ -5,86 +5,82 @@
 //  Created by Bernardo Ruiz  on 12/12/22.
 //
 
-import SwiftUI
 import CoreData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @State private var token = UserDefaults.standard.string(forKey: "token")
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+    @State private var tracks: [Track] = []
+    @State private var instances: [Instance] = []
+    @State var selectedInstance: Instance? = nil
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            TabView {
+                if !tracks.isEmpty && !instances.isEmpty {
+                    TrackList(tracks: $tracks, selectedInstance: $selectedInstance).tabItem {
+                        Label("Audios", systemImage: "play.fill")
                     }
+                    ConnectTo(selectedInstance: $selectedInstance).tabItem {
+                        Label("Connect", systemImage: "cable.connector")
+                    }
+                    DebugView().tabItem {
+                        Label("Debug", systemImage: "gear.circle.fill")
+                    }
+                } else {
+                    ProgressView()
                 }
-                .onDelete(perform: deleteItems)
+            }
+            .onAppear {
+                Task {
+                    await initView()
+                }
             }
             .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                ToolbarItem(placement: .navigation) {
+                    Picker("Bots", selection: $selectedInstance) {
+                        ForEach(instances, id: \.self) {
+                            Text($0.nick).tag(Optional($0))
+                        }
                     }
                 }
+                ToolbarItem(placement: .navigation) {
+                    Button(action: {
+                        Task {
+                            await stopPlayback(instanceId: selectedInstance!.uuid)
+                        }
+                    }) {
+                        Label("s", systemImage: "stop.fill")
+                    }
             }
-            Text("Select an item")
+
+            }
+#if os(iOS)
+            .toolbarBackground(.visible, for: .navigationBar)
+#endif
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+    private func initView() async {
+        if token == nil { await login() }
+        if let trackList = await getTracks() {
+            tracks = trackList
+        } else {
+            print("Failed to get tracks on appear")
         }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+        if let instanceList = await getInstances() {
+            selectedInstance = instanceList.first!
+            instances = instanceList
+        } else {
+            print("Failed to get instances")
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView(selectedInstance: Instance(backend: "asdasd", uuid: "asdasd", name: "asdasd", nick: "asdasd", running: true, playing: true)).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

@@ -13,6 +13,10 @@
 		EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FDB2947E94500E9F171 /* ContentView.swift */; };
 		EEA32FDE2947E94600E9F171 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEA32FDD2947E94600E9F171 /* Assets.xcassets */; };
 		EEA32FE22947E94600E9F171 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEA32FE12947E94600E9F171 /* Preview Assets.xcassets */; };
+		EEA32FE92947EA5B00E9F171 /* BotClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FE82947EA5B00E9F171 /* BotClient.swift */; };
+		EEA32FEB294C1E3300E9F171 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FEA294C1E3300E9F171 /* DebugView.swift */; };
+		EED5AEFF294C31B100B7E3DD /* TrackList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5AEFE294C31B100B7E3DD /* TrackList.swift */; };
+		EED5AF01294C47C600B7E3DD /* ConnectTo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5AF00294C47C600B7E3DD /* ConnectTo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +28,10 @@
 		EEA32FDD2947E94600E9F171 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EEA32FDF2947E94600E9F171 /* Sinusbot_Soundboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sinusbot_Soundboard.entitlements; sourceTree = "<group>"; };
 		EEA32FE12947E94600E9F171 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		EEA32FE82947EA5B00E9F171 /* BotClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotClient.swift; sourceTree = "<group>"; };
+		EEA32FEA294C1E3300E9F171 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
+		EED5AEFE294C31B100B7E3DD /* TrackList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackList.swift; sourceTree = "<group>"; };
+		EED5AF00294C47C600B7E3DD /* ConnectTo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectTo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,10 +67,14 @@
 				EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */,
 				EEA32FD62947E94500E9F171 /* Persistence.swift */,
 				EEA32FDB2947E94500E9F171 /* ContentView.swift */,
+				EED5AF00294C47C600B7E3DD /* ConnectTo.swift */,
+				EED5AEFE294C31B100B7E3DD /* TrackList.swift */,
+				EEA32FEA294C1E3300E9F171 /* DebugView.swift */,
 				EEA32FDD2947E94600E9F171 /* Assets.xcassets */,
 				EEA32FDF2947E94600E9F171 /* Sinusbot_Soundboard.entitlements */,
 				EEA32FD82947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld */,
 				EEA32FE02947E94600E9F171 /* Preview Content */,
+				EEA32FE82947EA5B00E9F171 /* BotClient.swift */,
 			);
 			path = "Sinusbot Soundboard";
 			sourceTree = "<group>";
@@ -145,10 +157,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEA32FEB294C1E3300E9F171 /* DebugView.swift in Sources */,
+				EEA32FE92947EA5B00E9F171 /* BotClient.swift in Sources */,
 				EEA32FD52947E94500E9F171 /* Sinusbot_SoundboardApp.swift in Sources */,
 				EEA32FDA2947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld in Sources */,
 				EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */,
 				EEA32FD72947E94500E9F171 /* Persistence.swift in Sources */,
+				EED5AEFF294C31B100B7E3DD /* TrackList.swift in Sources */,
+				EED5AF01294C47C600B7E3DD /* ConnectTo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
