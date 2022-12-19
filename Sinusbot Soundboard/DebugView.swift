@@ -28,7 +28,7 @@ struct DebugView: View {
                     printToken()
                     UserDefaults.standard.set("test", forKey: "token")
                     printToken()
-                    await login() 
+                    await login()
                 }
             }) {
                 Text("Login and print")
@@ -45,18 +45,10 @@ struct DebugView: View {
                 Text("Get Tracks and print")
             }
             Button(action: {
-                Task {
-                    if let channels = await getChannels(instanceId: "891c6bc4-beb1-44ae-8060-05a2a82ddec5") {
-                        print(channels)
-                    } else {
-                        print("No channels received")
-                    }
-                }
+                UserDefaults.standard.set(false, forKey: "isOnboarded")
             }) {
-                Text("Get Channels and print")
+                Text("Reset Onboard")
             }
-            
-            
         }
     }
 

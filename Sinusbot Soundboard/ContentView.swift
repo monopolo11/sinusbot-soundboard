@@ -5,16 +5,18 @@
 //  Created by Bernardo Ruiz  on 12/12/22.
 //
 
-import CoreData
+import AlertToast
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
     @State private var token = UserDefaults.standard.string(forKey: "token")
-
     @State private var instances: [Instance] = []
+    @State private var shouldBeOnboarded: Bool = !UserDefaults.standard.bool(forKey: "isOnboarded")
     @State var selectedInstance: Instance? = nil
     @State var search: String = ""
+    @State private var showToast: Bool = false
+    @State private var toastTitle: String = ""
+    @State private var toastType: AlertToast.AlertType = .regular
 
     var body: some View {
         TabView {
@@ -34,7 +36,7 @@ struct ContentView: View {
                     }
                     .navigationBarItems(trailing: Button(action: {
                         Task {
-                            await stopPlayback(instanceId: selectedInstance!.uuid)
+                            await stopPlay()
                         }
                     }) {
                         Label("", systemImage: "stop.fill")
@@ -64,7 +66,7 @@ struct ContentView: View {
                     }
                     .navigationBarItems(trailing: Button(action: {
                         Task {
-                            await stopPlayback(instanceId: selectedInstance!.uuid)
+                            await stopPlay()
                         }
                     }) {
                         Label("", systemImage: "stop.fill")
@@ -77,40 +79,34 @@ struct ContentView: View {
                     Text("Change Channel")
                 }
             }
-            
+
             NavigationView {
-                DebugView()
-                    .navigationBarTitle("Change Channel", displayMode: .inline)
-                    .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            Menu(selectedInstance?.nick ?? "Select a Bot") {
-                                Picker("Bots", selection: $selectedInstance) {
-                                    ForEach(instances, id: \.self) {
-                                        Text($0.nick).tag(Optional($0))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .navigationBarItems(trailing: Button(action: {
-                        Task {
-                            await stopPlayback(instanceId: selectedInstance!.uuid)
-                        }
-                    }) {
-                        Label("", systemImage: "stop.fill")
-                    })
+                OnboardingContent()
+                    .navigationBarTitle("Settings", displayMode: .inline)
             }
             .navigationViewStyle(.stack)
             .tabItem {
                 VStack {
                     Image(systemName: "gear.circle")
-                    Text("Debug")
+                    Text("Settings")
                 }
             }
         }
+        .sheet(isPresented: $shouldBeOnboarded, onDismiss: { Task { await initView() }}) {
+            OnboardingContent()
+        }
+        .interactiveDismissDisabled()
+        .onChange(of: selectedInstance) { _ in
+            toastType = .regular
+            toastTitle = "Selected: \(selectedInstance?.nick ?? "N/A")"
+            showToast.toggle()
+        }
+        .toast(isPresenting: $showToast) { AlertToast(displayMode: .banner(.pop), type: toastType, title: toastTitle) }
         .onAppear {
             Task {
-                await initView()
+                if !shouldBeOnboarded {
+                    await initView()
+                }
             }
         }
     }
@@ -123,6 +119,19 @@ struct ContentView: View {
             instances = instanceList
         } else {
             print("Failed to get instances")
+        }
+    }
+
+    func stopPlay() async {
+        let success = await stopPlayback(instanceId: selectedInstance!.uuid)
+        if success {
+            toastType = .complete(.green)
+            toastTitle = "Stoped play"
+            showToast.toggle()
+        } else {
+            toastType = .error(.red)
+            toastTitle = "Failed to stop, verify credentials"
+            showToast.toggle()
         }
     }
 }

@@ -6,8 +6,7 @@
 //
 
 import Foundation
-
-let botUri: String = "https://bot.monopolo11.com/api/v1/bot"
+import KeychainAccess
 
 struct LoginResponse: Codable {
     var token: String
@@ -63,32 +62,73 @@ struct Channel: Codable, Hashable {
     let clients: [Client]?
 }
 
-func login() async {
+func getUrl() -> String? {
+    do {
+        let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard").synchronizable(true)
+        let url = try keychain
+            .get("url")
+        if url == nil { return nil }
+        return url
+    } catch {
+        print(error)
+        return nil
+    }
+}
+
+func getLoginRequest() -> LoginRequest? {
+    do {
+        let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard").synchronizable(true)
+        let username = try keychain
+            .get("username")
+        let password = try keychain
+            .get("password")
+        if username == nil || password == nil { return nil }
+        return LoginRequest(username: username!, password: password!)
+    } catch {
+        print(error)
+        return nil
+    }
+}
+
+func login() async -> Bool? {
     print("Logging in")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/login")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    let botUrl = URL(string: "\(url!)/bot/login")!
     var urlRequest = URLRequest(url: botUrl)
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
     urlRequest.httpMethod = "POST"
-    let postData = LoginRequest(username: "admin", password: "weywey")
+    let postData: LoginRequest? = getLoginRequest()
+    if postData == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
     guard let encodedBody = try? JSONEncoder().encode(postData) else {
         print("Error encoding request body for login")
-        return
+        return nil
     }
     do {
-        let (data, _) = try await URLSession.shared.upload(for: urlRequest, from: encodedBody)
+        let (data, response) = try await URLSession.shared.upload(for: urlRequest, from: encodedBody)
+        if let httpResponse = response as? HTTPURLResponse {
+            if httpResponse.statusCode > 299 {
+                return false
+            }
+        }
+
         let encoded = try JSONDecoder().decode(LoginResponse.self, from: data)
         defaults.set(encoded.token, forKey: "token")
+        return true
     } catch {
         print("Login failed.")
         print(error)
     }
+    return nil
 }
 
 func getInfoAndValidateToken() async {
     print("getInfoAndValidateToken")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/info")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return }
+    let botUrl = URL(string: "\(url!)/bot/info")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.httpMethod = "GET"
@@ -96,10 +136,10 @@ func getInfoAndValidateToken() async {
     do {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         if let httpResponse = response as? HTTPURLResponse {
-            if(httpResponse.statusCode > 299) {
+            if httpResponse.statusCode > 299 {
                 await login()
             }
-            }
+        }
         print(data)
     } catch {
         print("Get Info failed.")
@@ -110,7 +150,9 @@ func getInfoAndValidateToken() async {
 func getTracks() async -> [Track]? {
     print("getTracks")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/files")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    let botUrl = URL(string: "\(url!)/bot/files")!
     var urlRequest = URLRequest(url: botUrl)
     let token = defaults.string(forKey: "token")
     let authHeader = "Bearer \(token!)"
@@ -119,8 +161,8 @@ func getTracks() async -> [Track]? {
     do {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         if let httpResponse = response as? HTTPURLResponse {
-                print(httpResponse.statusCode)
-            }
+            print(httpResponse.statusCode)
+        }
         let encoded = try JSONDecoder().decode([Track].self, from: data)
         var formatted: [Track] = []
         encoded.forEach { track in
@@ -139,7 +181,9 @@ func getTracks() async -> [Track]? {
 func getInstances() async -> [Instance]? {
     print("getInstances")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/instances")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    let botUrl = URL(string: "\(url!)/bot/instances")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.httpMethod = "GET"
@@ -147,8 +191,8 @@ func getInstances() async -> [Instance]? {
     do {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         if let httpResponse = response as? HTTPURLResponse {
-                print(httpResponse.statusCode)
-            }
+            print(httpResponse.statusCode)
+        }
         let encoded = try JSONDecoder().decode([Instance].self, from: data)
         return encoded
     } catch {
@@ -161,7 +205,9 @@ func getInstances() async -> [Instance]? {
 func playAudioById(trackId: String = "891c6bc4-beb1-44ae-8060-05a2a82ddec5", instanceId: String = "23558887-338b-40ae-8733-3400b7f825df") async -> Bool {
     print("playAudioById")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/i/\(instanceId)/play/byId/\(trackId)")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return false }
+    let botUrl = URL(string: "\(url!)/bot/i/\(instanceId)/play/byId/\(trackId)")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
@@ -180,7 +226,9 @@ func playAudioById(trackId: String = "891c6bc4-beb1-44ae-8060-05a2a82ddec5", ins
 func stopPlayback(instanceId: String) async -> Bool {
     print("stopPlayback")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/i/\(instanceId)/stop")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return false }
+    let botUrl = URL(string: "\(url!)/bot/i/\(instanceId)/stop")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
@@ -199,7 +247,9 @@ func stopPlayback(instanceId: String) async -> Bool {
 func getChannels(instanceId: String) async -> [Channel]? {
     print("getChannels")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/i/\(instanceId)/channels")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    let botUrl = URL(string: "\(url!)/bot/i/\(instanceId)/channels")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.httpMethod = "GET"
@@ -222,7 +272,9 @@ func getChannels(instanceId: String) async -> [Channel]? {
 func changeChannel(instanceId: String, channelId: String) async -> Bool {
     print("changeChannel")
     let defaults = UserDefaults.standard
-    let botUrl = URL(string: "\(botUri)/i/\(instanceId)/settings")!
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return false }
+    let botUrl = URL(string: "\(url!)/bot/i/\(instanceId)/settings")!
     var urlRequest = URLRequest(url: botUrl)
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
     urlRequest.httpMethod = "POST"

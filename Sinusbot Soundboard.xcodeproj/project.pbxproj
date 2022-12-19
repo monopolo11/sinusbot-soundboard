@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EE0996B92950D9E2009B74FD /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = EE0996B82950D9E2009B74FD /* AlertToast */; };
+		EE0996BB2950E159009B74FD /* OnboardingContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0996BA2950E159009B74FD /* OnboardingContent.swift */; };
+		EE0996C22950EA94009B74FD /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = EE0996C12950EA94009B74FD /* KeychainAccess */; };
 		EEA32FD52947E94500E9F171 /* Sinusbot_SoundboardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */; };
-		EEA32FD72947E94500E9F171 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FD62947E94500E9F171 /* Persistence.swift */; };
-		EEA32FDA2947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FD82947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld */; };
 		EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FDB2947E94500E9F171 /* ContentView.swift */; };
 		EEA32FDE2947E94600E9F171 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEA32FDD2947E94600E9F171 /* Assets.xcassets */; };
 		EEA32FE22947E94600E9F171 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEA32FE12947E94600E9F171 /* Preview Assets.xcassets */; };
@@ -20,10 +21,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EE0996BA2950E159009B74FD /* OnboardingContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContent.swift; sourceTree = "<group>"; };
 		EEA32FD12947E94500E9F171 /* Sinusbot Soundboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sinusbot Soundboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinusbot_SoundboardApp.swift; sourceTree = "<group>"; };
-		EEA32FD62947E94500E9F171 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		EEA32FD92947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Sinusbot_Soundboard.xcdatamodel; sourceTree = "<group>"; };
 		EEA32FDB2947E94500E9F171 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EEA32FDD2947E94600E9F171 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EEA32FDF2947E94600E9F171 /* Sinusbot_Soundboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sinusbot_Soundboard.entitlements; sourceTree = "<group>"; };
@@ -39,6 +39,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE0996C22950EA94009B74FD /* KeychainAccess in Frameworks */,
+				EE0996B92950D9E2009B74FD /* AlertToast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,14 +67,13 @@
 			isa = PBXGroup;
 			children = (
 				EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */,
-				EEA32FD62947E94500E9F171 /* Persistence.swift */,
 				EEA32FDB2947E94500E9F171 /* ContentView.swift */,
+				EE0996BA2950E159009B74FD /* OnboardingContent.swift */,
 				EED5AF00294C47C600B7E3DD /* ConnectTo.swift */,
 				EED5AEFE294C31B100B7E3DD /* TrackList.swift */,
 				EEA32FEA294C1E3300E9F171 /* DebugView.swift */,
 				EEA32FDD2947E94600E9F171 /* Assets.xcassets */,
 				EEA32FDF2947E94600E9F171 /* Sinusbot_Soundboard.entitlements */,
-				EEA32FD82947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld */,
 				EEA32FE02947E94600E9F171 /* Preview Content */,
 				EEA32FE82947EA5B00E9F171 /* BotClient.swift */,
 			);
@@ -103,6 +104,10 @@
 			dependencies = (
 			);
 			name = "Sinusbot Soundboard";
+			packageProductDependencies = (
+				EE0996B82950D9E2009B74FD /* AlertToast */,
+				EE0996C12950EA94009B74FD /* KeychainAccess */,
+			);
 			productName = "Sinusbot Soundboard";
 			productReference = EEA32FD12947E94500E9F171 /* Sinusbot Soundboard.app */;
 			productType = "com.apple.product-type.application";
@@ -131,6 +136,10 @@
 				Base,
 			);
 			mainGroup = EEA32FC82947E94500E9F171;
+			packageReferences = (
+				EE0996B72950D9E2009B74FD /* XCRemoteSwiftPackageReference "AlertToast" */,
+				EE0996C02950EA94009B74FD /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			productRefGroup = EEA32FD22947E94500E9F171 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -158,11 +167,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEA32FEB294C1E3300E9F171 /* DebugView.swift in Sources */,
+				EE0996BB2950E159009B74FD /* OnboardingContent.swift in Sources */,
 				EEA32FE92947EA5B00E9F171 /* BotClient.swift in Sources */,
 				EEA32FD52947E94500E9F171 /* Sinusbot_SoundboardApp.swift in Sources */,
-				EEA32FDA2947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld in Sources */,
 				EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */,
-				EEA32FD72947E94500E9F171 /* Persistence.swift in Sources */,
 				EED5AEFF294C31B100B7E3DD /* TrackList.swift in Sources */,
 				EED5AF01294C47C600B7E3DD /* ConnectTo.swift in Sources */,
 			);
@@ -285,6 +293,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Sinusbot Soundboard/Sinusbot_Soundboard.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -295,12 +304,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sinusbot-Soundboard-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bot Soundboard";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Keychain Access";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = s;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -327,7 +341,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Sinusbot Soundboard/Sinusbot_Soundboard.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -338,12 +354,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sinusbot-Soundboard-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bot Soundboard";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Keychain Access";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = s;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -389,18 +410,37 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCVersionGroup section */
-		EEA32FD82947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				EEA32FD92947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodel */,
-			);
-			currentVersion = EEA32FD92947E94500E9F171 /* Sinusbot_Soundboard.xcdatamodel */;
-			path = Sinusbot_Soundboard.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
+/* Begin XCRemoteSwiftPackageReference section */
+		EE0996B72950D9E2009B74FD /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
 		};
-/* End XCVersionGroup section */
+		EE0996C02950EA94009B74FD /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EE0996B82950D9E2009B74FD /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE0996B72950D9E2009B74FD /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+		EE0996C12950EA94009B74FD /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE0996C02950EA94009B74FD /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = EEA32FC92947E94500E9F171 /* Project object */;
 }

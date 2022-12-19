@@ -5,68 +5,48 @@
 //  Created by Bernardo Ruiz  on 15/12/22.
 //
 
+import AlertToast
 import SwiftUI
-
-/* struct TrackList: View {
-     @State var tracks: [Track] = []
-     @State var selectedInstance: String = ""
-     var body: some View {
-         ScrollView {
-             VStack {
-                 ForEach(tracks, id: \.self) { track in
-                     Button(track.title, action: {
-                         Task {
-                             await playAudioById(trackId: track.uuid, instanceId: selectedInstance)
-                         }
-                     })
-                 }
-             }
-         }
-     }
- }
-
- struct TrackList_Previews: PreviewProvider {
-     static var previews: some View {
-         TrackList()
-     }
- } */
 
 struct TrackList: View {
     @Binding var selectedInstance: Instance?
     @Binding var token: String?
     @State var searchText: String = ""
     @State var allTracks: [Track] = []
-    
+    @State private var showToast: Bool = false
+
     var filteredAudios: [Track] {
-            if searchText.isEmpty {
-                return allTracks
-            } else {
-                return allTracks.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-            }
+        if searchText.isEmpty {
+            return allTracks
+        } else {
+            return allTracks.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
         }
+    }
 
     let columns = [
         GridItem(.adaptive(minimum: 100))
     ]
     var body: some View {
-        if (allTracks.isEmpty) {
-            VStack(alignment:.center){
-                    ProgressView()
+        if allTracks.isEmpty {
+            VStack(alignment: .center) {
+                ProgressView()
             }
-            .frame(alignment:.center)
+            .frame(alignment: .center)
             .refreshable {
                 Task {
                     await initTracksView()
                 }
             }
-            
         }
         ScrollView {
             LazyVGrid(columns: columns, spacing: 40) {
                 ForEach(filteredAudios, id: \.self) { track in
                     Button(action: {
                         Task {
-                            await playAudioById(trackId: track.uuid, instanceId: selectedInstance!.uuid)
+                            let success = await playAudioById(trackId: track.uuid, instanceId: selectedInstance!.uuid)
+                            if success {
+                                showToast.toggle()
+                            }
                         }
                     }) {
                         Text(track.title)
@@ -80,11 +60,12 @@ struct TrackList: View {
                     .clipShape(Capsule())
                 }
             }
+            .padding()
         }
         .searchable(text: $searchText)
         .onAppear {
             Task {
-               await initTracksView()
+                await initTracksView()
             }
         }
         .refreshable {
@@ -92,13 +73,17 @@ struct TrackList: View {
                 await initTracksView()
             }
         }
+        .toast(isPresenting: $showToast) {
+            AlertToast(displayMode: .banner(.pop), type: .regular, title: "Playing Sound")
+        }
     }
+
     func initTracksView() async {
-       if token == nil { await login() }
-       if let trackList = await getTracks() {
-           allTracks = trackList
-       } else {
-           print("Failed to get tracks on appear")
-       }
-   }
+        if token == nil { await login() }
+        if let trackList = await getTracks() {
+            allTracks = trackList
+        } else {
+            print("Failed to get tracks on appear")
+        }
+    }
 }
