@@ -14,56 +14,108 @@ struct ContentView: View {
 
     @State private var instances: [Instance] = []
     @State var selectedInstance: Instance? = nil
-    
-    
+    @State var search: String = ""
 
     var body: some View {
-        NavigationView {
-            TabView {
-                if !instances.isEmpty {
-                    TrackList(selectedInstance: $selectedInstance,token: $token).tabItem {
-                        Label("Audios", systemImage: "play.fill")
-                    }
-                    ConnectTo(selectedInstance: $selectedInstance).tabItem {
-                        Label("Connect", systemImage: "cable.connector")
-                    }
-                    DebugView().tabItem {
-                        Label("Debug", systemImage: "gear.circle.fill")
-                    }
-                } else {
-                        ProgressView()
-                }
-            }
-            .onAppear {
-                Task {
-                    await initView()
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    Picker("Bots", selection: $selectedInstance) {
-                        ForEach(instances, id: \.self) {
-                            Text($0.nick).tag(Optional($0))
+        TabView {
+            NavigationView {
+                TrackList(selectedInstance: $selectedInstance, token: $token)
+                    .navigationBarTitle("Audios", displayMode: .inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Menu(selectedInstance?.nick ?? "Select a Bot") {
+                                Picker("Bots", selection: $selectedInstance) {
+                                    ForEach(instances, id: \.self) {
+                                        Text($0.nick).tag(Optional($0))
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-                ToolbarItem(placement: .navigation) {
-                    Button(action: {
+                    .navigationBarItems(trailing: Button(action: {
                         Task {
                             await stopPlayback(instanceId: selectedInstance!.uuid)
                         }
                     }) {
-                        Label("s", systemImage: "stop.fill")
-                    }
+                        Label("", systemImage: "stop.fill")
+                    })
+            }
+            .navigationViewStyle(.stack)
+            .tabItem {
+                VStack {
+                    Image(systemName: "play.fill")
+                    Text("Audios")
+                }
             }
 
+            NavigationView {
+                ConnectTo(selectedInstance: $selectedInstance)
+                    .navigationBarTitle("Change Channel", displayMode: .inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Menu(selectedInstance?.nick ?? "Select a Bot") {
+                                Picker("Bots", selection: $selectedInstance) {
+                                    ForEach(instances, id: \.self) {
+                                        Text($0.nick).tag(Optional($0))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .navigationBarItems(trailing: Button(action: {
+                        Task {
+                            await stopPlayback(instanceId: selectedInstance!.uuid)
+                        }
+                    }) {
+                        Label("", systemImage: "stop.fill")
+                    })
             }
-            .toolbarBackground(.visible, for: .navigationBar)
+            .navigationViewStyle(.stack)
+            .tabItem {
+                VStack {
+                    Image(systemName: "cable.connector")
+                    Text("Change Channel")
+                }
+            }
+            
+            NavigationView {
+                DebugView()
+                    .navigationBarTitle("Change Channel", displayMode: .inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Menu(selectedInstance?.nick ?? "Select a Bot") {
+                                Picker("Bots", selection: $selectedInstance) {
+                                    ForEach(instances, id: \.self) {
+                                        Text($0.nick).tag(Optional($0))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .navigationBarItems(trailing: Button(action: {
+                        Task {
+                            await stopPlayback(instanceId: selectedInstance!.uuid)
+                        }
+                    }) {
+                        Label("", systemImage: "stop.fill")
+                    })
+            }
+            .navigationViewStyle(.stack)
+            .tabItem {
+                VStack {
+                    Image(systemName: "gear.circle")
+                    Text("Debug")
+                }
+            }
         }
-        .navigationViewStyle(.stack)
+        .onAppear {
+            Task {
+                await initView()
+            }
+        }
     }
-    
-     func initView() async {
+
+    func initView() async {
         await getInfoAndValidateToken()
         if token == nil { await login() }
         if let instanceList = await getInstances() {

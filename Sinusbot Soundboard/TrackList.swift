@@ -49,6 +49,18 @@ struct TrackList: View {
         GridItem(.adaptive(minimum: 100))
     ]
     var body: some View {
+        if (allTracks.isEmpty) {
+            VStack(alignment:.center){
+                    ProgressView()
+            }
+            .frame(alignment:.center)
+            .refreshable {
+                Task {
+                    await initTracksView()
+                }
+            }
+            
+        }
         ScrollView {
             LazyVGrid(columns: columns, spacing: 40) {
                 ForEach(filteredAudios, id: \.self) { track in
@@ -69,11 +81,15 @@ struct TrackList: View {
                 }
             }
         }
-        .padding(.top,20)
-        .searchable(text: $searchText,placement: .navigationBarDrawer(displayMode: .automatic))
+        .searchable(text: $searchText)
         .onAppear {
             Task {
                await initTracksView()
+            }
+        }
+        .refreshable {
+            Task {
+                await initTracksView()
             }
         }
     }

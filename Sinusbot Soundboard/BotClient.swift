@@ -64,6 +64,7 @@ struct Channel: Codable, Hashable {
 }
 
 func login() async {
+    print("Logging in")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/login")!
     var urlRequest = URLRequest(url: botUrl)
@@ -85,6 +86,7 @@ func login() async {
 }
 
 func getInfoAndValidateToken() async {
+    print("getInfoAndValidateToken")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/info")!
     var urlRequest = URLRequest(url: botUrl)
@@ -106,6 +108,7 @@ func getInfoAndValidateToken() async {
 }
 
 func getTracks() async -> [Track]? {
+    print("getTracks")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/files")!
     var urlRequest = URLRequest(url: botUrl)
@@ -134,6 +137,7 @@ func getTracks() async -> [Track]? {
 }
 
 func getInstances() async -> [Instance]? {
+    print("getInstances")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/instances")!
     var urlRequest = URLRequest(url: botUrl)
@@ -155,6 +159,7 @@ func getInstances() async -> [Instance]? {
 }
 
 func playAudioById(trackId: String = "891c6bc4-beb1-44ae-8060-05a2a82ddec5", instanceId: String = "23558887-338b-40ae-8733-3400b7f825df") async -> Bool {
+    print("playAudioById")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/i/\(instanceId)/play/byId/\(trackId)")!
     var urlRequest = URLRequest(url: botUrl)
@@ -173,6 +178,7 @@ func playAudioById(trackId: String = "891c6bc4-beb1-44ae-8060-05a2a82ddec5", ins
 }
 
 func stopPlayback(instanceId: String) async -> Bool {
+    print("stopPlayback")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/i/\(instanceId)/stop")!
     var urlRequest = URLRequest(url: botUrl)
@@ -191,17 +197,19 @@ func stopPlayback(instanceId: String) async -> Bool {
 }
 
 func getChannels(instanceId: String) async -> [Channel]? {
+    print("getChannels")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/i/\(instanceId)/channels")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
     urlRequest.httpMethod = "GET"
     urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
+    urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
     do {
         let (data, _) = try await URLSession.shared.data(for: urlRequest)
         let encoded = try JSONDecoder().decode([Channel].self, from: data)
         let filtered = encoded.filter {
-            $0.disabled == false || $0.name == "no audio"
+            $0.disabled == false || $0.name.contains("no audio")
         }
         return filtered
     } catch {
@@ -212,6 +220,7 @@ func getChannels(instanceId: String) async -> [Channel]? {
 }
 
 func changeChannel(instanceId: String, channelId: String) async -> Bool {
+    print("changeChannel")
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/i/\(instanceId)/settings")!
     var urlRequest = URLRequest(url: botUrl)
