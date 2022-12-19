@@ -28,7 +28,7 @@ struct ChannelChangeRequest: Codable {
 struct Track: Codable, Hashable {
     let uuid: String
     let duration: Int
-    let title: String
+    var title: String
     let artist: String?
 }
 
@@ -84,16 +84,20 @@ func login() async {
     }
 }
 
-func getInfo() async {
+func getInfoAndValidateToken() async {
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/info")!
     var urlRequest = URLRequest(url: botUrl)
     let token = "Bearer \(defaults.string(forKey: "token")!)"
-    print(token)
     urlRequest.httpMethod = "GET"
     urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
     do {
-        let (data, _) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        if let httpResponse = response as? HTTPURLResponse {
+            if(httpResponse.statusCode > 299) {
+                await login()
+            }
+            }
         print(data)
     } catch {
         print("Get Info failed.")
@@ -110,9 +114,18 @@ func getTracks() async -> [Track]? {
     urlRequest.httpMethod = "GET"
     urlRequest.setValue(authHeader, forHTTPHeaderField: "Authorization")
     do {
-        let (data, _) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        if let httpResponse = response as? HTTPURLResponse {
+                print(httpResponse.statusCode)
+            }
         let encoded = try JSONDecoder().decode([Track].self, from: data)
-        return encoded
+        var formatted: [Track] = []
+        encoded.forEach { track in
+            var trackCopy = track
+            trackCopy.title = trackCopy.title.lowercased()
+            formatted.append(trackCopy)
+        }
+        return formatted.sorted(by: { $0.title < $1.title })
     } catch {
         print("Get Tracks failed.")
         print(error)
@@ -120,7 +133,7 @@ func getTracks() async -> [Track]? {
     return nil
 }
 
-func getInstances() async -> [Instance]?{
+func getInstances() async -> [Instance]? {
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/instances")!
     var urlRequest = URLRequest(url: botUrl)
@@ -128,7 +141,10 @@ func getInstances() async -> [Instance]?{
     urlRequest.httpMethod = "GET"
     urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
     do {
-        let (data, _) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        if let httpResponse = response as? HTTPURLResponse {
+                print(httpResponse.statusCode)
+            }
         let encoded = try JSONDecoder().decode([Instance].self, from: data)
         return encoded
     } catch {
@@ -174,7 +190,7 @@ func stopPlayback(instanceId: String) async -> Bool {
     return false
 }
 
-func getChannels(instanceId: String) async -> [Channel]?{
+func getChannels(instanceId: String) async -> [Channel]? {
     let defaults = UserDefaults.standard
     let botUrl = URL(string: "\(botUri)/i/\(instanceId)/channels")!
     var urlRequest = URLRequest(url: botUrl)
@@ -184,8 +200,8 @@ func getChannels(instanceId: String) async -> [Channel]?{
     do {
         let (data, _) = try await URLSession.shared.data(for: urlRequest)
         let encoded = try JSONDecoder().decode([Channel].self, from: data)
-        let filtered = encoded.filter{
-            $0.disabled == false
+        let filtered = encoded.filter {
+            $0.disabled == false || $0.name == "no audio"
         }
         return filtered
     } catch {
@@ -194,7 +210,6 @@ func getChannels(instanceId: String) async -> [Channel]?{
     }
     return nil
 }
-
 
 func changeChannel(instanceId: String, channelId: String) async -> Bool {
     let defaults = UserDefaults.standard

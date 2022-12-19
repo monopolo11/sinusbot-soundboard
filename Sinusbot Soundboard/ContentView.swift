@@ -12,15 +12,16 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var token = UserDefaults.standard.string(forKey: "token")
 
-    @State private var tracks: [Track] = []
     @State private var instances: [Instance] = []
     @State var selectedInstance: Instance? = nil
+    
+    
 
     var body: some View {
         NavigationView {
             TabView {
-                if !tracks.isEmpty && !instances.isEmpty {
-                    TrackList(tracks: $tracks, selectedInstance: $selectedInstance).tabItem {
+                if !instances.isEmpty {
+                    TrackList(selectedInstance: $selectedInstance,token: $token).tabItem {
                         Label("Audios", systemImage: "play.fill")
                     }
                     ConnectTo(selectedInstance: $selectedInstance).tabItem {
@@ -30,7 +31,7 @@ struct ContentView: View {
                         Label("Debug", systemImage: "gear.circle.fill")
                     }
                 } else {
-                    ProgressView()
+                        ProgressView()
                 }
             }
             .onAppear {
@@ -57,30 +58,19 @@ struct ContentView: View {
             }
 
             }
-#if os(iOS)
             .toolbarBackground(.visible, for: .navigationBar)
-#endif
         }
+        .navigationViewStyle(.stack)
     }
-
-    private func initView() async {
+    
+     func initView() async {
+        await getInfoAndValidateToken()
         if token == nil { await login() }
-        if let trackList = await getTracks() {
-            tracks = trackList
-        } else {
-            print("Failed to get tracks on appear")
-        }
         if let instanceList = await getInstances() {
             selectedInstance = instanceList.first!
             instances = instanceList
         } else {
             print("Failed to get instances")
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView(selectedInstance: Instance(backend: "asdasd", uuid: "asdasd", name: "asdasd", nick: "asdasd", running: true, playing: true)).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
