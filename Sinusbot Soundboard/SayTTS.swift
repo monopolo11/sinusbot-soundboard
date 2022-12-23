@@ -8,50 +8,47 @@
 import AlertToast
 import SwiftUI
 
-struct ConnectTo: View {
+struct SayTTS: View {
     @Binding var selectedInstance: Instance?
     @State var channels: [Channel] = []
     @State var selectedChannel: Channel?
+    @State var text: String = ""
+    @State var locale: LocaleObject = Locales.first!
     @State private var showToast: Bool = false
     @State private var toastTitle: String = ""
     @State private var toastType: AlertToast.AlertType = .regular
 
     var body: some View {
         VStack(alignment: .center) {
-            Picker("Channels", selection: $selectedChannel) {
-                Text("Select a Channel").tag(nil as Channel?)
-                ForEach(channels, id: \.self) {
-                    Text($0.name).tag($0 as Channel?)
-                }
+            if(selectedChannel != nil) {
+                Text(selectedChannel!.name)
+                    .font(.headline)
             }
-            .buttonStyle(.bordered)
-            .onChange(of: selectedInstance) { _ in
-                Task {
-                    await getAgain()
-                }
-            }
-            Button(action: {
-                Task {
-                    let success = await changeChannel(instanceId: selectedInstance!.uuid, channelId: selectedChannel!.id)
-                    if success {
-                        toastTitle = "Changed Channel"
-                        toastType = .complete(.green)
-                        showToast.toggle()
+            Form {
+                Section {
+                    TextField("Text for the bot to say",text:$text)
+                    Picker("Locales",selection: $locale) {
+                        ForEach(Locales,id: \.self) { local in
+                            Text(local.language)
+                        }
                     }
-                    try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
-                    await getAgain()
+                    Button(action: {Task { await handleSay()}}){
+                        Text("Say")
+                    }
+                    .disabled(text.isEmpty)
+                    
                 }
-            }) {
-                Text("Change")
-            }
-            .disabled(selectedChannel == nil)
-            .buttonStyle(.borderedProminent)
-            Text(selectedChannel?.clients?.isEmpty ?? true ? "No users connected" : "Connected users")
-            if selectedChannel != nil && selectedChannel!.clients != nil && !selectedChannel!.clients!.isEmpty {
-                List(selectedChannel!.clients!.sorted(by: { $0.nick < $1.nick }), id: \.self) { client in
-                    Text(client.nick)
+                Section(header:  Text(selectedChannel?.clients?.isEmpty ?? true ? "No users connected" : "Connected users")) {
+                   
+                    if selectedChannel != nil && selectedChannel!.clients != nil && !selectedChannel!.clients!.isEmpty {
+                        List(selectedChannel!.clients!.sorted(by: { $0.nick < $1.nick }), id: \.self) { client in
+                            Text(client.nick)
+                        }
+                    }
                 }
+                
             }
+            
         }
         .frame(minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
         .refreshable {
@@ -63,6 +60,11 @@ struct ConnectTo: View {
         .onAppear {
             Task {
                 await initConnectToView()
+            }
+        }
+        .onChange(of: selectedInstance) { _ in
+            Task {
+                await getAgain()
             }
         }
         .toast(isPresenting: $showToast) {
@@ -92,5 +94,18 @@ struct ConnectTo: View {
 
     func getAgain() async {
         await initConnectToView()
+    }
+    
+    func handleSay() async {
+        let success: Bool = await playTTS(text: text, locale: locale.locale, instanceId: selectedInstance!.uuid)
+        if success {
+            toastTitle = "Playing TTS"
+            toastType = .complete(.green)
+            showToast.toggle()
+        }else {
+            toastTitle = "There was an error, try again"
+            toastType = .error(.red)
+            showToast.toggle()
+        }
     }
 }

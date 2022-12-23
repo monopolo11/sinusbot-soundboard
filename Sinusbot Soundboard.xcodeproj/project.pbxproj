@@ -10,6 +10,8 @@
 		EE0996B92950D9E2009B74FD /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = EE0996B82950D9E2009B74FD /* AlertToast */; };
 		EE0996BB2950E159009B74FD /* OnboardingContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0996BA2950E159009B74FD /* OnboardingContent.swift */; };
 		EE0996C22950EA94009B74FD /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = EE0996C12950EA94009B74FD /* KeychainAccess */; };
+		EE09970A29558BDD009B74FD /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE09970929558BDD009B74FD /* Constants.swift */; };
+		EE09970E295596FF009B74FD /* SayTTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE09970D295596FF009B74FD /* SayTTS.swift */; };
 		EEA32FD52947E94500E9F171 /* Sinusbot_SoundboardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */; };
 		EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA32FDB2947E94500E9F171 /* ContentView.swift */; };
 		EEA32FDE2947E94600E9F171 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEA32FDD2947E94600E9F171 /* Assets.xcassets */; };
@@ -22,6 +24,8 @@
 
 /* Begin PBXFileReference section */
 		EE0996BA2950E159009B74FD /* OnboardingContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContent.swift; sourceTree = "<group>"; };
+		EE09970929558BDD009B74FD /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		EE09970D295596FF009B74FD /* SayTTS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SayTTS.swift; sourceTree = "<group>"; };
 		EEA32FD12947E94500E9F171 /* Sinusbot Soundboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sinusbot Soundboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinusbot_SoundboardApp.swift; sourceTree = "<group>"; };
 		EEA32FDB2947E94500E9F171 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -66,6 +70,7 @@
 		EEA32FD32947E94500E9F171 /* Sinusbot Soundboard */ = {
 			isa = PBXGroup;
 			children = (
+				EE09970D295596FF009B74FD /* SayTTS.swift */,
 				EEA32FD42947E94500E9F171 /* Sinusbot_SoundboardApp.swift */,
 				EEA32FDB2947E94500E9F171 /* ContentView.swift */,
 				EE0996BA2950E159009B74FD /* OnboardingContent.swift */,
@@ -76,6 +81,7 @@
 				EEA32FDF2947E94600E9F171 /* Sinusbot_Soundboard.entitlements */,
 				EEA32FE02947E94600E9F171 /* Preview Content */,
 				EEA32FE82947EA5B00E9F171 /* BotClient.swift */,
+				EE09970929558BDD009B74FD /* Constants.swift */,
 			);
 			path = "Sinusbot Soundboard";
 			sourceTree = "<group>";
@@ -167,12 +173,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEA32FEB294C1E3300E9F171 /* DebugView.swift in Sources */,
+				EE09970E295596FF009B74FD /* SayTTS.swift in Sources */,
 				EE0996BB2950E159009B74FD /* OnboardingContent.swift in Sources */,
 				EEA32FE92947EA5B00E9F171 /* BotClient.swift in Sources */,
 				EEA32FD52947E94500E9F171 /* Sinusbot_SoundboardApp.swift in Sources */,
 				EEA32FDC2947E94500E9F171 /* ContentView.swift in Sources */,
 				EED5AEFF294C31B100B7E3DD /* TrackList.swift in Sources */,
 				EED5AF01294C47C600B7E3DD /* ConnectTo.swift in Sources */,
+				EE09970A29558BDD009B74FD /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,7 +331,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dev.bernardo.ruiz.Sinusbot-Soundboard";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -373,7 +381,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dev.bernardo.ruiz.Sinusbot-Soundboard";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

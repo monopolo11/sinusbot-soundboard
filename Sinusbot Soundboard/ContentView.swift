@@ -79,6 +79,36 @@ struct ContentView: View {
                     Text("Change Channel")
                 }
             }
+            
+            NavigationView {
+                SayTTS(selectedInstance: $selectedInstance)
+                    .navigationBarTitle("Say With Bot", displayMode: .inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Menu(selectedInstance?.nick ?? "Select a Bot") {
+                                Picker("Bots", selection: $selectedInstance) {
+                                    ForEach(instances, id: \.self) {
+                                        Text($0.nick).tag(Optional($0))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .navigationBarItems(trailing: Button(action: {
+                        Task {
+                            await stopPlay()
+                        }
+                    }) {
+                        Label("", systemImage: "stop.fill")
+                    })
+            }
+            .navigationViewStyle(.stack)
+            .tabItem {
+                VStack {
+                    Image(systemName: "speaker.fill")
+                    Text("Say With Bot")
+                }
+            }
 
             NavigationView {
                 OnboardingContent()
@@ -92,7 +122,10 @@ struct ContentView: View {
                 }
             }
         }
-        .sheet(isPresented: $shouldBeOnboarded, onDismiss: { Task { await initView() }}) {
+        .sheet(isPresented: $shouldBeOnboarded, onDismiss: { Task {
+            try await Task.sleep(nanoseconds: UInt64(0.5 * Double(NSEC_PER_SEC)))
+            await initView()
+        }}) {
             OnboardingContent()
         }
         .interactiveDismissDisabled()
@@ -133,5 +166,12 @@ struct ContentView: View {
             toastTitle = "Failed to stop, verify credentials"
             showToast.toggle()
         }
+    }
+}
+
+
+struct SwiftUIView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }

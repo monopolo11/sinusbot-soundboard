@@ -24,6 +24,11 @@ struct ChannelChangeRequest: Codable {
     var channelName: String
 }
 
+struct SayTTSRequest: Codable {
+    var text: String
+    var locale: String
+}
+
 struct Track: Codable, Hashable {
     let uuid: String
     let duration: Int
@@ -64,7 +69,7 @@ struct Channel: Codable, Hashable {
 
 func getUrl() -> String? {
     do {
-        let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard").synchronizable(true)
+        let keychain = Keychain(service: KEYCHAIN_IDENTIFIER).synchronizable(true)
         let url = try keychain
             .get("url")
         if url == nil { return nil }
@@ -77,7 +82,7 @@ func getUrl() -> String? {
 
 func getLoginRequest() -> LoginRequest? {
     do {
-        let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard").synchronizable(true)
+        let keychain = Keychain(service: KEYCHAIN_IDENTIFIER).synchronizable(true)
         let username = try keychain
             .get("username")
         let password = try keychain
@@ -90,37 +95,38 @@ func getLoginRequest() -> LoginRequest? {
     }
 }
 
-func login() async -> Bool? {
+func login() async -> (success: Bool, message: String?) {
     print("Logging in")
     let defaults = UserDefaults.standard
     let url: String? = getUrl()
-    if url == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return (false,nil) }
     let botUrl = URL(string: "\(url!)/bot/login")!
     var urlRequest = URLRequest(url: botUrl)
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
     urlRequest.httpMethod = "POST"
     let postData: LoginRequest? = getLoginRequest()
-    if postData == nil { defaults.set(false, forKey: "isOnboarded"); return nil }
+    if postData == nil { defaults.set(false, forKey: "isOnboarded"); return (false,nil) }
     guard let encodedBody = try? JSONEncoder().encode(postData) else {
         print("Error encoding request body for login")
-        return nil
+        return (false,"Error encoding request body for login")
     }
     do {
         let (data, response) = try await URLSession.shared.upload(for: urlRequest, from: encodedBody)
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode > 299 {
-                return false
+                let message = String(data: data, encoding: .utf8)
+                return (false, message)
             }
         }
 
         let encoded = try JSONDecoder().decode(LoginResponse.self, from: data)
         defaults.set(encoded.token, forKey: "token")
-        return true
+        return (true, "Logged In")
     } catch {
         print("Login failed.")
         print(error)
     }
-    return nil
+    return (false,nil)
 }
 
 func getInfoAndValidateToken() async {
@@ -194,7 +200,7 @@ func getInstances() async -> [Instance]? {
             print(httpResponse.statusCode)
         }
         let encoded = try JSONDecoder().decode([Instance].self, from: data)
-        return encoded
+        return encoded.sorted(by: { $0.nick < $1.nick })
     } catch {
         print("Get Instances failed.")
         print(error)
@@ -202,7 +208,7 @@ func getInstances() async -> [Instance]? {
     return nil
 }
 
-func playAudioById(trackId: String = "891c6bc4-beb1-44ae-8060-05a2a82ddec5", instanceId: String = "23558887-338b-40ae-8733-3400b7f825df") async -> Bool {
+func playAudioById(trackId: String, instanceId: String = "23558887-338b-40ae-8733-3400b7f825df") async -> Bool {
     print("playAudioById")
     let defaults = UserDefaults.standard
     let url: String? = getUrl()
@@ -261,7 +267,7 @@ func getChannels(instanceId: String) async -> [Channel]? {
         let filtered = encoded.filter {
             $0.disabled == false || $0.name.contains("no audio")
         }
-        return filtered
+        return filtered.sorted(by: { $0.name < $1.name })
     } catch {
         print("Get Channels failed.")
         print(error)
@@ -291,6 +297,34 @@ func changeChannel(instanceId: String, channelId: String) async -> Bool {
         return encoded.success
     } catch {
         print("Change Failed failed.")
+        print(error)
+    }
+    return false
+}
+
+func playTTS(text: String,locale: String ,instanceId: String) async -> Bool {
+    print("playTTS")
+    let defaults = UserDefaults.standard
+    let url: String? = getUrl()
+    if url == nil { defaults.set(false, forKey: "isOnboarded"); return false }
+    let botUrl = URL(string: "\(url!)/bot/i/\(instanceId)/say")!
+    var urlRequest = URLRequest(url: botUrl)
+    let postData = SayTTSRequest(text: text, locale: locale)
+    guard let encodedBody = try? JSONEncoder().encode(postData) else {
+        print("Error encoding request body for login")
+        return false
+    }
+    let token = "Bearer \(defaults.string(forKey: "token")!)"
+    urlRequest.setValue(token, forHTTPHeaderField: "Authorization")
+    urlRequest.httpMethod = "POST"
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    do {
+        let (data, _) = try await URLSession.shared.upload(for: urlRequest,from: encodedBody)
+        let encoded = try JSONDecoder().decode(GenericResponse.self, from: data)
+        return encoded.success
+    } catch {
+        print("Playback failed.")
         print(error)
     }
     return false

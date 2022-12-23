@@ -29,6 +29,7 @@ struct OnboardingContent: View {
                 TextField("https://bot.example.com/api/v1", text: $url)
                     .scrollDismissesKeyboard(.automatic)
                     .textContentType(.URL)
+                    .autocapitalization(.none)
                     .keyboardType(.webSearch)
             }
             HStack {
@@ -67,7 +68,7 @@ struct OnboardingContent: View {
     func initOnboarding() async {
         DispatchQueue.global().async {
             do {
-                let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard")
+                let keychain = Keychain(service: KEYCHAIN_IDENTIFIER)
                     .synchronizable(true)
                 username = try keychain
                     .get("username") ?? ""
@@ -85,7 +86,7 @@ struct OnboardingContent: View {
         DispatchQueue.global().async {
             do {
                 print("running continue")
-                let keychain = Keychain(service: "dev.bernardo.ruiz.Sinusbot-Soundboard")
+                let keychain = Keychain(service: KEYCHAIN_IDENTIFIER)
                 try keychain
                     .set(username, key: "username")
                 try keychain
@@ -93,16 +94,16 @@ struct OnboardingContent: View {
                 try keychain
                     .set(url, key: "url")
                 Task {
-                    let testCreds = await login()
-                    if testCreds != nil, testCreds! {
-                        toastTitle = "Logged In"
+                    let loginResult = await login()
+                    if loginResult.success {
+                        toastTitle = loginResult.message!
                         toastType = .complete(.green)
                         showToast.toggle()
                         try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
                         UserDefaults.standard.set(true, forKey: "isOnboarded")
                         dismiss()
                     } else {
-                        toastTitle = "Failed to loggin, check credentials"
+                        toastTitle = loginResult.message!
                         toastType = .error(.red)
                         showToast.toggle()
                     }

@@ -50,12 +50,12 @@ struct TrackList: View {
                         }
                     }) {
                         Text(track.title)
-                            .truncationMode(.tail)
                             .foregroundColor(.white)
                             .padding()
-                            .scaledToFit()
+                            .lineLimit(2)
+
                     }
-                    .frame(width: 100, height: 40, alignment: .center)
+                    .frame(width: 100, height: 100, alignment: .center)
                     .background(Color(red: 0, green: 0, blue: 0.8))
                     .clipShape(Capsule())
                 }
